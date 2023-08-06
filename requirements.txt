@@ -18,4 +18,4 @@ streamlit-vertical-slider==1.0.2
 tiktoken==0.4.0
 tokenizers==0.13.3
 toml==0.10.2
-SQLAlchemy==2.0.19
+pysqlite3-binary
