@@ -1,3 +1,7 @@
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 import streamlit as st
 import streamlit.components.v1 as components
 from streamlit_extras.switch_page_button import switch_page
