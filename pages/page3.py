@@ -1,5 +1,4 @@
 import streamlit as st
-import hydralit_components as hc
 from streamlit_elements import elements, sync, event
 from types import SimpleNamespace
 from streamlit_elements import mui
