@@ -254,7 +254,8 @@ if set_chagne:
         want_to_contribute = st.button("다시하기", key='go_to_second')
         if want_to_contribute:
             st.session_state.three_to_second = 1
-            switch_page("page2")
+            st.button('page_switch', key='page_switch', on_click=switch_page("page2"))
+            
             
 
 
