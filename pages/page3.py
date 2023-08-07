@@ -254,7 +254,9 @@ if  total_number != 0:
 
 if set_chagne:
     with first:
-        want_to_contribute = st.button("다시하기", key='다시하기', on_click=swich_before())
+        want_to_contribute = st.button("다시하기", key='go_to_second')
+        if want_to_contribute:
+            swich_before()
             
 
 
