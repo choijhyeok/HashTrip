@@ -154,13 +154,6 @@ total_imgs = []
 total_answer = []
 set_chagne=False
 
-if set_chagne:
-    with first:
-        want_to_contribute = st.button("다시하기")
-        if want_to_contribute:
-            switch_page("page2")
-
-
 
 for i in keys_name:
     total_number += len(st.session_state.data[i])
@@ -255,6 +248,10 @@ if  total_number != 0:
                 eval(f'w.card{i}("""{text}""")')
             set_chagne = True
 
-
+if set_chagne:
+    with first:
+        want_to_contribute = st.button("다시하기")
+        if want_to_contribute:
+            switch_page("page2")
 
 
