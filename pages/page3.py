@@ -10,7 +10,19 @@ from langchain import LLMChain
 from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from streamlit_extras.switch_page_button import switch_page
+from streamlit_js_eval import streamlit_js_eval
 st.set_page_config(page_title="여행스타그램",initial_sidebar_state="collapsed",layout="wide")
+
+
+if "back_page" not in st.session_state:
+    st.session_state.back_page = 1
+    st.session_state.go_back_page = False
+    
+if st.session_state.go_back_page == True:
+    st.session_state.go_back_page = False
+    st.session_state.three_to_second = 1
+    switch_page("page2")
+
 
 class Dashboard:
     DRAGGABLE_CLASS = "draggable"
@@ -109,6 +121,13 @@ def instagram_gpt(text):
     instagram_template = """다음 내용을 220자 이내의 인스타그램 피드처럼 바꿔주세요. {text}"""
     instagram_chain = LLMChain(llm=ChatOpenAI(temperature=0), prompt=PromptTemplate.from_template(instagram_template))
     return instagram_chain({'text' : text})['text']
+
+def swich_to_next():
+    st.session_state.go_back_page = True
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
+
+
+
 
 
 
@@ -251,11 +270,4 @@ if  total_number != 0:
 
 if set_chagne:
     with first:
-        want_to_contribute = st.button("다시하기", key='go_to_second')
-        if want_to_contribute:
-            st.session_state.three_to_second = 1
-            st.button('page_switch', key='page_switch', on_click=switch_page("page2"))
-            
-            
-
-
+        next_page_btn = st.button("다시하기",key='go_to_second', on_click=swich_to_next)
