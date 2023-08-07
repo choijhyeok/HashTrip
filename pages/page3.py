@@ -110,6 +110,10 @@ def instagram_gpt(text):
     instagram_chain = LLMChain(llm=ChatOpenAI(temperature=0), prompt=PromptTemplate.from_template(instagram_template))
     return instagram_chain({'text' : text})['text']
 
+def swich_before():
+    st.session_state.three_to_second = 1
+    switch_page("page2")
+
 
 st.markdown("""
     <style>
@@ -250,7 +254,7 @@ if  total_number != 0:
 
 if set_chagne:
     with first:
-        want_to_contribute = st.button("다시하기", key='다시하기', on_click=switch_page("page2"))
+        want_to_contribute = st.button("다시하기", key='다시하기', on_click=swich_before())
             
 
 
