@@ -142,10 +142,7 @@ div.stButton > button:first-child {
 
 empyt1,con,empty2 = st.columns([30,20,30])
 e1,first,e2 = st.columns([160,20,160])
-with first:
-    want_to_contribute = st.button("다시하기")
-    if want_to_contribute:
-        switch_page("page2")
+
 
 
 total_number = 0
@@ -251,6 +248,9 @@ if  total_number != 0:
                 text = text.replace("'",' ').strip()
                 eval(f'w.card{i}("""{text}""")')
 
-
+with first:
+    want_to_contribute = st.button("다시하기")
+    if want_to_contribute:
+        switch_page("page2")
 
 
