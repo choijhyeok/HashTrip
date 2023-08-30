@@ -47,9 +47,6 @@ real_name = {12:'관광지', 14:'문화시설', 15:'축제공연행사', 25:'여
 embeddings = OpenAIEmbeddings()
 state = st.session_state
 
-if 'three_to_second' in state:
-    del state.three_to_second
-    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 if 'three_to_second' in state:
     del state.three_to_second
