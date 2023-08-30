@@ -377,7 +377,7 @@ with col1:
     with seper2:
         st.button('최적의 여행조합 추천', disabled=True)
     if st.session_state['sec_number']  == 0:
-        st.session_state['sec_number'] +=1
+        st.session_state['sec_number'] = 1
         check_row, package_logs = DEAP_float(data_df.sample(frac=1))
         st.session_state['check_row'] = check_row
         st.session_state['package_logs'] = package_logs
@@ -400,15 +400,17 @@ with col1:
             st.write(f"{st.session_state['package_logs'][-1]}, choice rows = {list(map(int,st.session_state['check_row']))}")
             st.dataframe(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])
 with col2:
-    string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt)
-    font_config = FontConfiguration()
-    html = HTML(string=string_html, base_url='.')
-    css = CSS(string=css_string, font_config=font_config)
-    html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
-    pdf_doc = fitz.open('template.pdf')
-    for i in pdf_doc:
-        pix = i.get_pixmap()
-        pix.save("page-%i.png" % i.number)
+    if st.session_state['sec_number'] == 1:
+        st.session_state['sec_number'] = 2
+        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt)
+        font_config = FontConfiguration()
+        html = HTML(string=string_html, base_url='.')
+        css = CSS(string=css_string, font_config=font_config)
+        html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
+        pdf_doc = fitz.open('template.pdf')
+        for i in pdf_doc:
+            pix = i.get_pixmap()
+            pix.save("page-%i.png" % i.number)
         
     seper4, seper5, seper6 = st.columns([120,80,120])
     seper44, seper55, seper66 = st.columns([30,120,30])
