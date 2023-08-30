@@ -197,7 +197,7 @@ def list_in_tuple(data):
 def DEAP_float(data):
     check_row = []
     while(True):
-        MAX_GENERATIONS = 300
+        MAX_GENERATIONS = 150
         POPULATION_SIZE = 30
         P_CROSSOVER = 0.9
         P_MUTATION = 0.1
