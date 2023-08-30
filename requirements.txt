@@ -19,7 +19,8 @@ tiktoken==0.4.0
 tokenizers==0.13.3
 toml==0.10.2
 pysqlite3-binary
-PyMuPDF
+--upgrade pip
+PyMuPDF==1.23.2
 streamlet_ext
 weasyprint
 haversine
