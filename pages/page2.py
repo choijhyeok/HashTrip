@@ -51,6 +51,10 @@ if 'three_to_second' in state:
     del state.three_to_second
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
+if 'three_to_second' in state:
+    del state.three_to_second
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
+
 
 if "submitted" not in state:
     # con.empty()
