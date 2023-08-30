@@ -20,7 +20,7 @@ tokenizers==0.13.3
 toml==0.10.2
 pysqlite3-binary
 pymupdf==1.22.5
-streamlet_ext
+streamlit-ext
 weasyprint
 haversine
 deap
