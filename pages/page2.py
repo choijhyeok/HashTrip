@@ -47,6 +47,9 @@ real_name = {12:'관광지', 14:'문화시설', 15:'축제공연행사', 25:'여
 embeddings = OpenAIEmbeddings()
 state = st.session_state
 
+if 'three_to_second' in state:
+    del state.three_to_second
+    streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 
 if "submitted" not in state:
@@ -57,6 +60,7 @@ if "submitted" not in state:
     state.go_back = False
     state.ans= {}
     state.data = {}
+    state.pdf_data = {}
     # state.seq = {}
     state.data_check = {}
     state.hashtag = '' #해시테그 가져옴
@@ -96,7 +100,8 @@ def xy_search(df, setting_number = 10, search_number = 12):
     response = requests.get(url + queryParams)
     json_object = json.loads(response.text)
     # st.write(json_object)
-    # print(len(json_object['response']['body']['items']))
+    # print(json_object)
+    # print(json_object['response']['body']['items'])
     if len(json_object['response']['body']['items']) > 0:
         return xy_json(json_object)
     else:
@@ -158,7 +163,7 @@ def xy_json(df_data):
     data_js['mapx'] = [i  if i != '' else 'N'for i in mapx]
     data_js['mapy'] = [i  if i != '' else 'N'for i in mapy]
     data_js['link'] = [i  if i != '' else 'N'for i in blog_link]
-    
+    # print(data_js)
     return data_js
 
 
@@ -231,6 +236,9 @@ def add_form(name, df, hash_str, rc, sn):
         r_addr = [i.metadata['addr'] for i in choice_doc]
         r_num = [i.metadata['seq_num'] for i in choice_doc]
         
+        state.pdf_data[name]= {'x' : r_mapx, 'y' : r_mapy, 'img' : r_img, 'name' : r_name, 'gpt_ans' : choice_ans, 'blog' : []}
+        
+        
         img_list = []
         for img_url in r_img:
             img_list.append({'width' : 500, 'height' : 500, 'src' : img_url})
@@ -274,6 +282,7 @@ def add_form(name, df, hash_str, rc, sn):
                         linked_text = ' '
                         for li_int in range(len(r_num)):
                             linked_text += f"[{li_int+1}.{r_name[li_int]}]({df['link'][r_num[li_int]][0]})"
+                            state.pdf_data[name]['blog'].append(df['link'][r_num[li_int]][0])
                             linked_text += '  '
                         st.write(linked_text)
         return choice_ans, choice_doc, op
