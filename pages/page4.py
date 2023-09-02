@@ -390,9 +390,9 @@ def product_sep(data,keys):
 def stream_example(package_logs, check_row, road, df):
     semi_text1 = f'''
 
-    :red[**최종 추천 결과**] 
+    :red[최종 추천 결과] 
     
-    :총 합이 :red[**{road}**] km를 넘지않고 선호도가 최대인 여행지 조합 추천 {package_logs}, choice rows = {check_row}
+    :총 합이 :red[{road}] km를 넘지않고 선호도가 최대인 여행지 조합 추천 {package_logs}, choice rows = {check_row}
     '''
     semi_text2 = f'''
     Hashtrip의 최종 여행의 추천입니다. \n\n
