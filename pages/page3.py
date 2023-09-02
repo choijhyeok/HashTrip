@@ -193,7 +193,7 @@ def trip_instagram():
     
 
     total_number = 0
-    keys_name = list(st.session_state.ans2.keys())
+    keys_name = list(st.session_state.ans.keys())
     total_context = []
     total_hashtag= []
     total_name = []
@@ -207,9 +207,9 @@ def trip_instagram():
 
     for i in keys_name:
         if total_number == 1:
-            total_answer += [st.session_state.ans2[i].split(f'조회된 개수보다 추천 수가 많아서 조회된 개수 {total_number}개 내에서 추천하는 것으로 변경되었습니다. \n\n ')[-1]]
+            total_answer += [st.session_state.ans[i].split(f'조회된 개수보다 추천 수가 많아서 조회된 개수 {total_number}개 내에서 추천하는 것으로 변경되었습니다. \n\n ')[-1]]
         else:
-            total_answer += st.session_state.ans2[i].split('\n\n')
+            total_answer += st.session_state.ans[i].split('\n\n')
 
     for i in keys_name:
         for j in st.session_state.data[i]:
@@ -232,7 +232,7 @@ def trip_instagram():
         st.session_state.gpt[i] = [total_context[-1]]
 
 
-    # st.write(st.session_state.ans2)
+    # st.write(st.session_state.ans)
     # st.write(st.session_state.data)
 
     # st.write(total_answer)
@@ -411,7 +411,7 @@ if instagram_make:
 
     total_name, total_number = trip_instagram()
     
-    if  len(list(st.session_state.ans2.keys())) >=2:
+    if  len(list(st.session_state.ans.keys())) >=2:
         trip_select_number(total_name)
         st.session_state.data['total_number'] = total_number
 
