@@ -515,7 +515,7 @@ with col2:
         seper44, seper55, seper66 = st.columns([30,120,30])
         seper7, seper8, seper9 = st.columns([120,80,120])   
         with seper5:
-            st.button('여행스타그램 전체 과정 정리', disabled=True)
+            st.button('HashTrip 전체 과정 정리', disabled=True)
         with seper55:
             st.write(' ')
             st.write(' ')
