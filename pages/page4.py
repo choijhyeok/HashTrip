@@ -500,7 +500,7 @@ with col2:
         Hashtrip의 최종 여행의 추천입니다. \n\n
         
         입력된 최대거리 {st.session_state.data['road']}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
-        해당 여행지의 합산 거리, 합산 선호도는  {st.session_state['package_logs']} 입니다. \n\n
+        해당 여행지의 합산 거리, 합산 선호도는  {st.session_state["package_logs"][-1]} 입니다. \n\n
         
         추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
         '''
