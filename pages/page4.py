@@ -390,7 +390,7 @@ def stream_example(package_logs, check_row, road, df):
     추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
     '''
     
-    dfi.export(df, 'DF.png', max_cols=-1, max_rows=-1)
+    # dfi.export(df, 'DF.png', max_cols=-1, max_rows=-1)
     
     
     for word in semi_text1.split():
