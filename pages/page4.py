@@ -433,7 +433,7 @@ if st.session_state['sec_number']  == 0:
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
                 semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])))
-                st.session_state['out_text'] = semi_text2
+                st.session_state['out_text'] = semi_text2[-1]
     with col2:            
         if st.session_state['out_text'] != '':
             string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'])
@@ -480,7 +480,7 @@ else:
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
                 semi_text2 = write(stream_example(st.session_state['package_logs'][-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], pd.DataFrame(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])))
-                st.session_state['out_text'] = semi_text2
+                st.session_state['out_text'] = semi_text2[-1]
         
     with col2:         
         if st.session_state['out_text'] != '':
