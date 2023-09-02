@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 from streamlit_extras.switch_page_button import switch_page
 
 
-st.set_page_config(page_title="여행스타그램",initial_sidebar_state="collapsed",layout="wide")
+st.set_page_config(page_title="HashTrip",initial_sidebar_state="collapsed",layout="wide")
 st.markdown(
     """
 <style>

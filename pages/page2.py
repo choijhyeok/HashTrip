@@ -58,7 +58,6 @@ if 'three_to_second' in state:
 
 
 if "submitted" not in state:
-    # con.empty()
     state.submitted = False
     state.refresh = 1
     state.button_sent = False
@@ -66,30 +65,19 @@ if "submitted" not in state:
     state.ans= {}
     state.data = {}
     state.pdf_data = {}
-    # state.seq = {}
     state.data_check = {}
-    state.hashtag = '' #해시테그 가져옴
-    # state.next = st.button("▶")
+    state.hashtag = '' 
 
 if state.go_back == True:
-    # if state.refresh >= 2:
     state.go_back = False
     switch_page("page3")
 
-# def refresh():
-#     # state.refresh -= 1
-#     streamlit_js_eval(js_expressions="parent.window.location.reload()")
-    
+
 def swich_to_next():
-    # st.experimental_rerun() 
-    # state.refresh += 1
-    
     state.go_back = True
     state.submitted = False
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
     
-     
-
 def xy_search(df, setting_number = 10, search_number = 12):
     url = '	https://apis.data.go.kr/B551011/KorService1/locationBasedList1'
     queryParams = f'?{parse.quote_plus("serviceKey")}={openapi_key}&' + parse.urlencode({ 
@@ -104,24 +92,15 @@ def xy_search(df, setting_number = 10, search_number = 12):
 
     response = requests.get(url + queryParams)
     json_object = json.loads(response.text)
-    # st.write(json_object)
-    # print(json_object)
-    # print(json_object['response']['body']['items'])
     if len(json_object['response']['body']['items']) > 0:
         return xy_json(json_object)
     else:
         return 0
-        
-    # print(json_object)
-    # st.write(json_object)
     
-
- 
 def kakao_imagae(input_text):
     method = "GET"
     url = "https://dapi.kakao.com/v2/search/image"
     params = {'query' : input_text, 'page':1,  'size': 1}
-    # header = {'authorization': 'KakaoAK 589429f8f4508876b3b8f40ec8ab67be'}
     header = {'authorization': f'KakaoAK {kakao_key}'}
     response = requests.request(method=method, url=url, headers=header, params=params )
     tokens = response.json()
@@ -132,14 +111,11 @@ def kakao_blogs(input_text):
     method = "GET"
     url = "https://dapi.kakao.com/v2/search/blog"
     params = {'query' : input_text, 'page':1,  'size': 3}
-    # header = {'authorization': 'KakaoAK 589429f8f4508876b3b8f40ec8ab67be'}
     header = {'authorization': f'KakaoAK {kakao_key}'}
     response = requests.request(method=method, url=url, headers=header, params=params )
     tokens = response.json()
-    
     return [tokens['documents'][i]['url'] for i in range(len(tokens['documents']))]
 
- 
 def xy_json(df_data):
     data_js = dict()
     addr = []
@@ -220,7 +196,6 @@ def QA_chatbot(_db, hash_str, rc ,op):
 
 
 def add_form(name, df, hash_str, rc, sn):
-    # print(df)
     count_brunch = len(df['addr'])
     brunch_n = 1
 
@@ -333,9 +308,11 @@ _,  right_column_button = st.columns([25, 50])
 
 with left_column:
         
-    st.markdown('#### #해시 태그, ChatGPT 추천수를 입력해 주세요. ')
+    st.markdown('#### #️⃣ HashTrip 여행 선택지')
+    st.write(' ')
     first_input = st.columns(2)
     with first_input[0]:
+        st.markdown('- HashTrip #여행지 #여행테마 입력')
         hash_tags = st.text_input(
             "",
             label_visibility="collapsed",
@@ -343,14 +320,15 @@ with left_column:
             placeholder='#서울 #힐링 #여행',
         )
     with first_input[1]:
+        st.markdown('- ChatGPT 항목 추천수를 입력')
         recomand_count = st.number_input(label = '', min_value=1, max_value=8,label_visibility="collapsed",value=3)
     if hash_tags:
-        st.write(f"입력된 해시태그 : {hash_tags}, ChatGPT 추천수 : {recomand_count} ")
+        st.write(f"입력된 해시태그 : :red[**{hash_tags}**], ChatGPT 추천수 : :red[**{recomand_count}**]")
     
     
     st.write(' ')
     st.write(' ')
-    st.markdown('#### 추천 받을 항목을 선택해 주세요. ')
+    st.markdown('#### ✅ HashTrip에 포함시킬 항목을 선택해 주세요. ')
     
     checks1 = st.columns(4)
     with checks1[0]:
@@ -358,7 +336,7 @@ with left_column:
     with checks1[1]:
         set2=st.checkbox('문화시설')
     with checks1[2]:
-        set3=st.checkbox('축제공연행사')
+        set3=st.checkbox('행사')
     with checks1[3]:
         set4=st.checkbox('여행코스')
 # ---------------------------
@@ -388,7 +366,7 @@ with left_column:
     
     true_check_list = [idx for idx,i in enumerate(check_list) if i==True]
     num_col = check_list.count(True)  if check_list.count(True)  != 0 else 0
-    st.markdown('조회 할 개수를 지정해 주세요.')
+    st.markdown('#### 🤖 ChatGPT에게 전달할 항목 개수를 지정해 주세요.')
     if num_col:
         if num_col > 4:
             columns1 =  st.columns(4)
@@ -412,7 +390,7 @@ with left_column:
                     st.markdown(f'{real_name[check_real[num]]}')
                     globals()[f'slid_number{num+1}'] = svs.vertical_slider(key=f'set{num+1}', default_value=5, step=1, min_value=min_value, max_value=max_value)
     
-    st.write(f'{len(true_check_list)}개 선택했습니다.')
+    st.write(f':red[**{len(true_check_list)}**]개 선택했습니다.')
     hash_list = [x.strip() for x in hash_tags.split('#') if x != '']
 
     left_btn, right_btn = st.columns([5,5])
@@ -423,7 +401,7 @@ with left_column:
             
             
             if st.button('Submit', key='button1'):
-                gif_runner = st.image('https://global.discourse-cdn.com/business7/uploads/streamlit/original/2X/2/247a8220ebe0d7e99dbbd31a2c227dde7767fbe1.gif')
+                gif_runner = st.image('hashloading.gif')
                 time.sleep(0.5)
                 for key_word in hash_list:
                     df_xy =  LOCAL.search_address(key_word, dataframe=True)
@@ -456,6 +434,8 @@ with left_column:
             
             if len(exist_list) >=1 and state.refresh == 1:
                 state.refresh += 1
+                st.markdown('#### #️⃣ HashTrip 추천 항목')
+                st.write(' ')
                 for t in exist_list:
                     if f'df_{t}' in globals() and globals()[f'df_{t}'] != 0: 
                         set_name = name_list.pop(0)
@@ -487,13 +467,3 @@ with left_column:
             
                 with col5:
                     next_page_btn = st.button("▶",key='npage', on_click=swich_to_next)
-                    # if next_page_btn:
-                        
-                    # btx2 = st.button(
-                    #             "▶",
-                    #             key='NEXT',
-                    #             help="move_next",
-                    #             on_click=swich_to_next,
-                    #             kwargs=None,
-                    #             disabled=False,
-                            # )

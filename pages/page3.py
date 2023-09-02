@@ -11,10 +11,8 @@ from langchain import PromptTemplate
 from langchain.chat_models import ChatOpenAI
 from streamlit_extras.switch_page_button import switch_page
 from streamlit_js_eval import streamlit_js_eval
-import  streamlit_vertical_slider  as svs
-import streamlit_ext as ste
 import streamlit.components.v1 as components
-st.set_page_config(page_title="여행스타그램",initial_sidebar_state="collapsed",layout="wide")
+st.set_page_config(page_title="HashTrip",initial_sidebar_state="collapsed",layout="wide")
 
 if 'page' not in st.session_state:
     st.session_state.page = 0
@@ -111,7 +109,7 @@ class Card(Dashboard.Item):
             mui.CardHeader(
                 title=self.s_title,
                 subheader=self.hashtag,
-                avatar=mui.Avatar("S", sx={"bgcolor": "#82D1E3"}),
+                avatar=mui.Avatar("#", sx={"bgcolor": "#82D1E3"}),
                 action=mui.IconButton(mui.icon.MoreVert),
                 className=self._draggable_class,
             )
@@ -129,11 +127,6 @@ class Card(Dashboard.Item):
                 mui.IconButton(mui.icon.Favorite)
                 mui.IconButton(mui.icon.Share)
 
-# def load_lottieurl(url: str):
-#     r = requests.get(url)
-#     if r.status_code != 200:
-#         return None
-#     return r.json()
 
 def instagram_gpt(text):
     instagram_template = """다음 내용을 220자 이내의 인스타그램 피드처럼 바꿔주세요. {text}"""
@@ -185,17 +178,7 @@ div.stButton > button:first-child {
 
 
 
-
-# nex11, next15, next16 = st.columns([160,20,160])
-# with next15:
-#     st.write('여행스타그램 생성중...')
-    
-# loading_placeholder = st.empty()
-
-# Some code
-
 def trip_instagram():    
-    # with st.form('여행스타그램 form', clear_on_submit=True):
     empyt1,con,empty2 = st.columns([30,20,30])
     e1,first,e2 = st.columns([160,20,160])
 
@@ -224,7 +207,7 @@ def trip_instagram():
         for j in st.session_state.data[i]:
             total_name.append(j.page_content)
             total_imgs.append(j.metadata['img'])
-            total_hashtag.append(f'#{i} #{j.page_content} #여행스타그램')
+            total_hashtag.append(f'#{i} #{j.page_content} #HashTrip')
 
     # print(total_name)
 
@@ -256,7 +239,7 @@ def trip_instagram():
             with elements("style_mui_sx"):
                 
                 mui.Box(
-                    f"#{st.session_state.hashtag}  #여행스타그램",
+                    f"#HashTrip #{st.session_state.hashtag}",
                     sx={
                         # "fontWeight":'bold',
                         "textAlign": "center",
@@ -317,7 +300,8 @@ def trip_select_number(total_name):
         
         option_list = [f"{i}점" for i in range(1,11)]
         st.session_state.next_data = {}
-        st.markdown('### 여행 경로 추천을 위한 선호도를 입력해 주세요. (1~10점 중복가능)')
+        st.markdown('#### HashTrip 경로 기반 추천')
+        st.markdown('- HashTrip 게시물을 확인하시고 가고싶은 여행지의 선호도를 입력해 주세요. (1~10점 중복가능)')
 
         
         st.write(' ')
@@ -328,10 +312,6 @@ def trip_select_number(total_name):
         for i in range(len(total_name)):
             st.session_state.data[f'set{i}'] = 0
         st.session_state.data['road'] = 0
-        min_value = 1
-        max_value = 10
-       
-            
         
 
         if len(total_name) > 4:
@@ -339,9 +319,7 @@ def trip_select_number(total_name):
             
             for i in range(col_num):
                 globals()[f'columns{i}'] = st.columns(4)
-            # columns1 =  st.columns(4)
-            # columns2 = st.columns(len(total_name) - 4)
-            
+
             cnt = 0
             ncol = 0
             for idx, name in enumerate(total_name):
@@ -351,13 +329,15 @@ def trip_select_number(total_name):
                     with globals()[f'columns{ncol}'][idx - (4*ncol)]:
                         #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
                         #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-                        st.selectbox(f':green[{name}]', option_list, key=f'select{idx}')
+                        st.select_slider(f':green[**{name}**]', option_list, key=f'select{idx}')
+                        # st.selectbox(f':green[**{name}**]', option_list, key=f'select{idx}')
                         #globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)
                 else:
                     with globals()[f'columns{ncol}'][idx]:
                         #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
                         #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-                        st.selectbox(f':green[{name}]', option_list, key=f'select{idx}')
+                        st.select_slider(f':green[**{name}**]', option_list, key=f'select{idx}')
+                        # st.selectbox(f':green[**{name}**]', option_list, key=f'select{idx}')
                         #globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)               
                 cnt +=1
         else:
@@ -366,7 +346,9 @@ def trip_select_number(total_name):
                 with columns[idx]:
                     #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
                     #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-                    st.selectbox(f':green[{name}]', option_list, key=f'select{idx}')
+                    # st.write()
+                    st.select_slider(f':green[**{name}**]', option_list, key=f'select{idx}')
+                    # st.selectbox(f':green[**{name}**]', option_list, key=f'select{idx}')
             #               globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)
         st.write(' ')
         st.write(' ')
@@ -377,74 +359,32 @@ def trip_select_number(total_name):
         with columns2[0]:
             st.divider()
         with columns3[1]:
-            st.number_input(':green[여행 가능한 최대 거리를 입력해주세요. (km단위)]',min_value=5, max_value=100, step=1,key='road')
+            st.slider(':green[**여행 가능한 최대 거리를 입력해주세요. (km단위)**]', min_value=5, max_value=100, step=1,key='road')
+            # st.number_input(':green[**여행 가능한 최대 거리를 입력해주세요. (km단위)**]',min_value=5, max_value=100, step=1,key='road')
         seper1, seper2, seper3 = st.columns([200,40,200])
         with seper2:
             st.form_submit_button(label='경로기반 추천', on_click=add_choice)
             
-            print(st.session_state['pdf_data'])
-            print('-'*30)
-            print(st.session_state.gpt)
-            
-            
-            
-        # trip_numbers = []
-        # for idx in range(len(total_name)):
-        #     print(globals()[f'slid_trip{idx}'])
-        #     if globals()[f'slid_trip{idx}'] == None:
-        #         globals()[f'slid_trip{idx}'] = 5
-        #     trip_numbers.append(globals()[f'slid_trip{idx}'])
-            
-        
-        
-
-        # st.write(f'{total_name.pop(0)}')
-        # option0 = st.selectbox('해당 여행지의 선호도 점수 :', option_list, key=0)
-        # for i in range(len(total_name)):
-        #     st.write(f'{total_name[i]}')
-        #   
-        # st.session_state.go_next_page = True
-        # st.session_state.go_next_page['trip_num'] = [int(globals()[f'option{i}'].split('점')[0])  for i in range(len(total_name) + 1)]
-        #submit_btn = st.form_submit_button(label='여행 경로 추천', on_click=swich_to_next2)
-        # print([globals()[f'slid_trip{i}']  for i in range(len(total_name))])
-        # print(st.session_state.select0, st.session_state.select1)
-
-        # submit_btn = st.form_submit_button(label='여행 경로 추천', on_click=add_choice)
-                
-
-    # if set_chagne:
-        
-
-
-# lottie_url = "https://assets5.lottiefiles.com/packages/lf20_V9t630.json"
-# lottie_json = load_lottieurl(lottie_url)
-
-
-# import streamlit as st
-
-
-
-# "# Center an image when in fullscreen"
-# "Images (and most elements in general) are always aligned to the left"
-# st.image("https://placekitten.com/g/200/200")
 
 
 cols_place = st.empty()
-n1, n2, n3 = cols_place.columns([200,40,200])
+n1, n2, n3 = cols_place.columns([190,50,190])
 placeholder = st.empty()
 loading_place = st.empty()
 set_chagne=False
 loading_one = 0
 
+
 with placeholder.container():
     with n2:
-        instagram_make = st.button('여행스타그램 생성',key='mstar')
+        instagram_make = st.button('HashTrip 게시물 생성',key='mstar')
+
 
 
 #If btn is pressed or True
 if instagram_make:
-    # n1, n2, n3 = st.columns([160,20,160])
-    # loading_one += 1
+    n1, n2, n3 = st.columns([160,20,160])
+    loading_one += 1
     with loading_place.container():
             components.html(
                 """
@@ -453,112 +393,15 @@ if instagram_make:
                 """,
                 height=1000,
             )
-        
-    total_name = trip_instagram()
-    trip_select_number(total_name)
+
+    total_name, total_number = trip_instagram()
+    
+    if  len(list(st.session_state.ans2.keys())) >=2:
+        trip_select_number(total_name)
+        st.session_state.data['total_number'] = total_number
+
+     
     if total_name:
         cols_place.empty()
         placeholder.empty()
         loading_place.empty()
-    
-    
-    
-
-# instagram_make = st.button('여행스타그램 생성',key='mstar')
-# if instagram_make:
-#     n1, n2, n3 = st.columns([160,20,160])
-#     with n2:
-#         loading = st.image('https://media.giphy.com/media/3oEjI6SIIHBdRxXI40/giphy.gif')
-#     trip_instagram()
-#     set_chagne = True    
-#     loading.empty()
-#     instagram_make
-        
-# if trip_instagram():
-#     set_chagne = True    
-#     loading_placeholder.empty()
-
-
-
-        # if submit_btn:
-            # return [globals()[f'slid_trip{i}']  for i in range(len(total_name))]
-        
-        
-
-# select_boxs()
-# print(select_boxs())
-# # if set_chagne:
-#     # nex1, next2, next3 = st.columns([160,20,160])
-# nex4, next5, next6 = st.columns([160,20,160])
-# option_list = [f"{i}점" for i in range(1,11)]
-# st.session_state.next_data = {}
-# with st.form('여행 경로 form'):
-#     st.markdown('### 여행 경로 추천을 위한 선호도를 입력해 주세요. (1~10점 중복가능)')
-
-    
-#     st.write(' ')
-#     st.write(' ')
-#     st.session_state.next_data['trip_name'] = [i for i in total_name]
-#     st.session_state.next_data['trip_num'] = []
-#     min_value = 1
-#     max_value = 10
-
-#     if len(total_name) > 4:
-#         col_num = (len(total_name)//4)  + (len(total_name)%4) 
-        
-#         for i in range(col_num):
-#             globals()[f'columns{i}'] = st.columns(4)
-#         # columns1 =  st.columns(4)
-#         # columns2 = st.columns(len(total_name) - 4)
-        
-#         cnt = 0
-#         ncol = 0
-#         for idx, name in enumerate(total_name):
-#             if cnt >= 4:
-#                 if cnt %4 == 0:
-#                     ncol += 1
-#                 with globals()[f'columns{ncol}'][idx - (4*ncol)]:
-#                     #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
-#                     #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-#                     globals()[f'slid_trip{idx}'] =st.selectbox(f':green[{name}]', option_list, key=f'{idx}')
-#                     #globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)
-#             else:
-#                 with globals()[f'columns{ncol}'][idx]:
-#                     #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
-#                     #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-#                     globals()[f'slid_trip{idx}'] =st.selectbox(f':green[{name}]', option_list, key=f'{idx}')
-#                     #globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)               
-#             cnt +=1
-#     else:
-#         columns =  st.columns(len(total_name))
-#         for idx, name in enumerate(total_name):
-#             with columns[idx]:
-#                 #st.session_state.next_data['trip_num'].append(st.number_input(label = '', min_value=1, max_value=10,label_visibility="collapsed",value=3, key=idx))
-#                 #globals()[f'slid_trip{idx}'] = ste.slider(f':green[{name}]', 1, 10, 5, key=f'{idx}')
-#                 globals()[f'slid_trip{idx}'] =st.selectbox(f':green[{name}]', option_list, key=f'{idx}')
-#         #               globals()[f'slid_trip{idx}'] = svs.vertical_slider(key=f'set_{idx}', default_value=5, step=1, min_value=min_value, max_value=max_value)
-    
-#     # trip_numbers = []
-#     # for idx in range(len(total_name)):
-#     #     print(globals()[f'slid_trip{idx}'])
-#     #     if globals()[f'slid_trip{idx}'] == None:
-#     #         globals()[f'slid_trip{idx}'] = 5
-#     #     trip_numbers.append(globals()[f'slid_trip{idx}'])
-        
-    
-    
-
-#     # st.write(f'{total_name.pop(0)}')
-#     # option0 = st.selectbox('해당 여행지의 선호도 점수 :', option_list, key=0)
-#     # for i in range(len(total_name)):
-#     #     st.write(f'{total_name[i]}')
-#     #   
-#     # st.session_state.go_next_page = True
-#     # st.session_state.go_next_page['trip_num'] = [int(globals()[f'option{i}'].split('점')[0])  for i in range(len(total_name) + 1)]
-#     #submit_btn = st.form_submit_button(label='여행 경로 추천', on_click=swich_to_next2)
-#     print([globals()[f'slid_trip{i}']  for i in range(len(total_name))])
-#     submit_btn = st.form_submit_button(label='여행 경로 추천')
-#     if submit_btn:
-        
-#         st.write([globals()[f'slid_trip{i}']  for i in range(len(total_name))])
-    

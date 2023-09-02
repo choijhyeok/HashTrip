@@ -14,11 +14,16 @@ from itertools import product
 import base64
 from pathlib import Path
 from glob import glob
+from streamlit_extras.customize_running import center_running
+from streamlit_extras.streaming_write import write
+import time
+import dataframe_image as dfi
 import streamlit_ext as ste
 import fitz
 from weasyprint.text.fonts import FontConfiguration
 from weasyprint import HTML, CSS
-st.set_page_config(page_title="여행스타그램_page4",initial_sidebar_state="collapsed",layout="wide")
+plt.rcParams['figure.figsize'] = [15, 8]
+st.set_page_config(page_title="HashTrip",initial_sidebar_state="collapsed",layout="wide")
 
 
 
@@ -61,7 +66,7 @@ col1, col2 = st.columns([50,50])
 
 
 
-def make_html(html_string,data,gpt):
+def make_html(html_string,data,gpt, out_text):
     for key in data.keys():
         html_string += f"<h3 id='{key}-1'><span>{key}</span></h3><p>"
         for idx, n in enumerate(data[key]['name']):
@@ -115,7 +120,9 @@ def make_html(html_string,data,gpt):
 
     # 유전알고리즘
     html_string += "<h2 id='유전-알고리즘을-통한-최적의-여행-조합-추천'><span>유전 알고리즘을 통한 최적의 여행 조합 추천</span></h2>"
-    html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"></p><p>&nbsp;</p></div></div></body>'
+    html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"><img src="DF.png" referrerpolicy="no-referrer" alt="유전알고리즘으로 추천된 df"></p><p>&nbsp;</p>'
+    new_out = out_text.replace('\n','<br>')
+    html_string +=f' <p>{new_out}</p></div></div></body>'
     return html_string
 
 #-------#
@@ -124,18 +131,20 @@ def img_to_bytes(img_path):
     img_bytes = Path(img_path).read_bytes()
     encoded = base64.b64encode(img_bytes).decode()
     return encoded
+
 def img_to_html(img_path):
     img_html = "<img src='data:image/png;base64,{}' class='img-fluid'>".format(
       img_to_bytes(img_path)
     )
     return img_html
+
 class Knapsack01Problem:
 
-    def __init__(self):
+    def __init__(self, maxKM):
 
         # initialize instance variables:
         self.items = []
-        self.maxKm = 10
+        self.maxKm = maxKM
         self.budget = 0
         self.load_dataset = True
         self.df = []
@@ -180,10 +189,6 @@ class Knapsack01Problem:
                       "accumulated value = {}".format(int(order_id), km,  int(value), float_list[i], totalKm, totalValue))
         package_logs.append("Total KM = {}, Total value = {}".format(totalKm, int(totalValue)))
         return check_row, package_logs
-    
-    
-plt.rcParams['figure.figsize'] = [15, 8]
-
 
 def list_in_tuple(data):
     all_list = []
@@ -194,18 +199,17 @@ def list_in_tuple(data):
 
 
 
-def DEAP_float(data):
+def DEAP_float(data, maxKM):
     check_row = []
     while(True):
-        
-        MAX_GENERATIONS = 150
+        MAX_GENERATIONS = 300
         POPULATION_SIZE = 30
         P_CROSSOVER = 0.9
         P_MUTATION = 0.1
         HALL_OF_FAME_SIZE = 1
         RANDOM_SEED = 42
         random.seed(RANDOM_SEED)
-        knapsack = Knapsack01Problem()
+        knapsack = Knapsack01Problem(maxKM)
         knapsack.getItems(data)
 
 
@@ -253,10 +257,10 @@ def DEAP_float(data):
         plt.savefig('result.png', dpi=100)
 
 
-        print("-- Best Ever Individual = ", best)
-        print("-- Best Ever Fitness = ", best.fitness.values[0])
+        # print("-- Best Ever Individual = ", best)
+        # print("-- Best Ever Fitness = ", best.fitness.values[0])
 
-        print("-- Knapsack Items --")
+        # print("-- Knapsack Items --")
         check_row, package_logs = knapsack.printItems_all(best, check_row)
         # st.pyplot()
         # plt.show()
@@ -271,13 +275,13 @@ def DEAP_float(data):
                     best_avg = i['avg']
                     best_gen = i['gen']
 
-        print()
+        # print()
         if MAX_GENERATIONS == best_gen:
-            print('\n 현재 수행결과가 가장좋은 결과입니다.')
+            # print('\n 현재 수행결과가 가장좋은 결과입니다.')
             return check_row, package_logs
             break
         else:
-            print('최고의 설정은 best avg : {}, best gen : {} 입니다.'.format(best_avg,best_gen))
+            # print('최고의 설정은 best avg : {}, best gen : {} 입니다.'.format(best_avg,best_gen))
             MAX_GENERATIONS = best_gen
             return check_row, package_logs
             break
@@ -286,12 +290,19 @@ def product_sep(data,keys):
     all_vars = []
     all_y = []
     all_x = []
+    preference_dict = dict()
+    
+    cnt = 0
     for  i in keys:
         all_vars.append(data[i]['name'])
         all_y.append(data[i]['y'])
         all_x.append(data[i]['x'])
+        
+        for j in data[i]['name']:
+            preference_dict[j] =  st.session_state.data[f'set{cnt}']
+            cnt += 1
     
-
+    
     if len(keys) == 2:
         product_list=[]
         df_list = []
@@ -299,7 +310,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1])))
         for idx,i in enumerate(product_list):
             km_float = haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], abs(km_float), random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], abs(km_float), preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]]))
         return df_list
     
     elif len(keys) == 3:
@@ -309,7 +320,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]],km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]],km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]]))
         return df_list
     
     elif len(keys) == 4:
@@ -319,7 +330,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2]), all_vars[3].index(i[3])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km')) + abs(haversine((float(all_y[2][i[2]]), float(all_x[2][i[2]])), (float(all_y[3][i[3]]), float(all_x[3][i[3]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]],km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]],km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]] +preference_dict[all_vars[3][i[3]]]))
         return df_list
 
     elif len(keys) == 5:
@@ -329,7 +340,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2]), all_vars[3].index(i[3]), all_vars[4].index(i[4])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km')) + abs(haversine((float(all_y[2][i[2]]), float(all_x[2][i[2]])), (float(all_y[3][i[3]]), float(all_x[3][i[3]])), unit = 'km')) + abs(haversine((float(all_y[3][i[3]]), float(all_x[3][i[3]])), (float(all_y[4][i[4]]), float(all_x[4][i[4]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]],km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]],km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]] +preference_dict[all_vars[3][i[3]]] +preference_dict[all_vars[4][i[4]]]))
         return df_list
     
     elif len(keys) == 6:
@@ -339,7 +350,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2]), all_vars[3].index(i[3]), all_vars[4].index(i[4]), all_vars[5].index(i[5])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km')) + abs(haversine((float(all_y[2][i[2]]), float(all_x[2][i[2]])), (float(all_y[3][i[3]]), float(all_x[3][i[3]])), unit = 'km')) + abs(haversine((float(all_y[3][i[3]]), float(all_x[3][i[3]])), (float(all_y[4][i[4]]), float(all_x[4][i[4]])), unit = 'km')) + abs(haversine((float(all_y[4][i[4]]), float(all_x[4][i[4]])), (float(all_y[5][i[5]]), float(all_x[5][i[5]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]],km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]],km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]] +preference_dict[all_vars[3][i[3]]] +preference_dict[all_vars[4][i[4]]] +preference_dict[all_vars[5][i[5]]]))
         return df_list
     
     elif len(keys) == 7:
@@ -349,7 +360,7 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2]), all_vars[3].index(i[3]), all_vars[4].index(i[4]), all_vars[5].index(i[5]), all_vars[6].index(i[6])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km')) + abs(haversine((float(all_y[2][i[2]]), float(all_x[2][i[2]])), (float(all_y[3][i[3]]), float(all_x[3][i[3]])), unit = 'km')) + abs(haversine((float(all_y[3][i[3]]), float(all_x[3][i[3]])), (float(all_y[4][i[4]]), float(all_x[4][i[4]])), unit = 'km')) + abs(haversine((float(all_y[4][i[4]]), float(all_x[4][i[4]])), (float(all_y[5][i[5]]), float(all_x[5][i[5]])), unit = 'km')) + abs(haversine((float(all_y[5][i[5]]), float(all_x[5][i[5]])), (float(all_y[6][i[6]]), float(all_x[6][i[6]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]], all_vars[6][i[6]],km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]], all_vars[6][i[6]],km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]] +preference_dict[all_vars[3][i[3]]] +preference_dict[all_vars[4][i[4]]] +preference_dict[all_vars[5][i[5]]] +preference_dict[all_vars[6][i[6]]]))
         return df_list
     
     elif len(keys) == 8:
@@ -359,27 +370,58 @@ def product_sep(data,keys):
             product_list.append((all_vars[0].index(i[0]), all_vars[1].index(i[1]), all_vars[2].index(i[2]), all_vars[3].index(i[3]), all_vars[4].index(i[4]), all_vars[5].index(i[5]), all_vars[6].index(i[6]) , all_vars[7].index(i[7])))
         for idx,i in enumerate(product_list):
             km_float = abs(haversine((float(all_y[0][i[0]]), float(all_x[0][i[0]])), (float(all_y[1][i[1]]), float(all_x[1][i[1]])), unit = 'km')) + abs(haversine((float(all_y[1][i[1]]), float(all_x[1][i[1]])), (float(all_y[2][i[2]]), float(all_x[2][i[2]])), unit = 'km')) + abs(haversine((float(all_y[2][i[2]]), float(all_x[2][i[2]])), (float(all_y[3][i[3]]), float(all_x[3][i[3]])), unit = 'km')) + abs(haversine((float(all_y[3][i[3]]), float(all_x[3][i[3]])), (float(all_y[4][i[4]]), float(all_x[4][i[4]])), unit = 'km')) + abs(haversine((float(all_y[4][i[4]]), float(all_x[4][i[4]])), (float(all_y[5][i[5]]), float(all_x[5][i[5]])), unit = 'km')) + abs(haversine((float(all_y[5][i[5]]), float(all_x[5][i[5]])), (float(all_y[6][i[6]]), float(all_x[6][i[6]])), unit = 'km')) + abs(haversine((float(all_y[6][i[6]]), float(all_x[6][i[6]])), (float(all_y[7][i[7]]), float(all_x[7][i[7]])), unit = 'km'))
-            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]], all_vars[6][i[6]] ,all_vars[7][i[7]] ,km_float, random.randint(1,10)))
+            df_list.append((idx, all_vars[0][i[0]], all_vars[1][i[1]], all_vars[2][i[2]], all_vars[3][i[3]] , all_vars[4][i[4]], all_vars[5][i[5]], all_vars[6][i[6]] ,all_vars[7][i[7]] ,km_float, preference_dict[all_vars[0][i[0]]] +preference_dict[all_vars[1][i[1]]] +preference_dict[all_vars[2][i[2]]] +preference_dict[all_vars[3][i[3]]] +preference_dict[all_vars[4][i[4]]] +preference_dict[all_vars[5][i[5]]] +preference_dict[all_vars[6][i[6]]] +preference_dict[all_vars[7][i[7]]]))
         return df_list
+    
+def stream_example(package_logs, check_row, road, df):
+    semi_text1 = f'''
 
-# data
-# print(st.session_state.pdf_data)
-# print(st.session_state.gpt)
+    ##### :red[**최종 추천 결과**] 
+    
+    :총 합이 :red[**{road}**] km를 넘지않고 선호도가 최대인 여행지 조합 추천 {package_logs}, choice rows = {check_row}
+    '''
+    semi_text2 = f'''
+    Hashtrip의 최종 여행의 추천입니다. \n\n
+    
+    입력된 최대거리 {road}km를 기반으로 유전알고리즘 추천을 했을때 {check_row} 번호의 여행들이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
+    해당 여행지의 합산 거리, 합산 선호도는  {package_logs} 입니다. \n\n
+    
+    추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
+    '''
+    
+    dfi.export(df, 'DF.png', max_cols=-1, max_rows=-1)
+    
+    
+    for word in semi_text1.split():
+        yield word + " "
+        time.sleep(0.1)
+    
+    yield df
+    
+    for word in semi_text2.split():
+        yield word + " "
+        time.sleep(0.05)
+    
+    return semi_text2
+
 
 htmlf = open('template.html')
 html_string = htmlf.read()
 cssf = open('template.css')
 css_string = cssf.read()
-
 data_df = product_sep(st.session_state.pdf_data,list(st.session_state.pdf_data.keys()))
 data_df = pd.DataFrame(data_df)
+
+
 with col1:
     seper1, seper2, seper3 = st.columns([120,60,120])
     with seper2:
-        st.button('최적의 여행조합 추천', disabled=True)
+        st.button('경로기반 추천', disabled=True)
     if st.session_state['sec_number']  == 0:
-        st.session_state['sec_number'] = 1
-        check_row, package_logs = DEAP_float(data_df.sample(frac=1))
+        st.session_state['sec_number'] =1
+        center_running()
+        
+        check_row, package_logs = DEAP_float(data_df.sample(frac=1), st.session_state.data['road'])
         st.session_state['check_row'] = check_row
         st.session_state['package_logs'] = package_logs
         
@@ -387,19 +429,28 @@ with col1:
         st.divider()
         seper11, seper22, seper33 = st.columns([30,200,30])
         with seper22:
-            st.write('##### 최종 추천 결과')
-            st.write(f'총 합이 10 km를 넘지않고 선호도가 최대인 여행지 조합 추천')
-            st.write(f'{package_logs[-1]}, choice rows = {list(map(int,check_row))}')
-            st.dataframe(data_df.iloc[check_row][data_df.columns[1:]])
+            if st.button('HashTrip 경로기반 추천 결과'):
+                semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])))
+            
+            # st.write('##### :red[**최종 추천 결과**]')
+            # st.markdown(f'- 총 합이 :red[**{st.session_state.data["road"]} km**]를 넘지않고 선호도가 최대인 여행지 조합 추천')
+            # st.markdown(f'- {package_logs[-1]}, choice rows = {list(map(int,check_row))}')
+            # st.dataframe(data_df.iloc[check_row][data_df.columns[1:]])
+            
+            
     else:
         st.image('result.png')
         st.divider()
         seper11, seper22, seper33 = st.columns([30,200,30])
         with seper22:
-            st.write('##### 최종 추천 결과')
-            st.write(f'총 합이 10 km를 넘지않고 선호도가 최대인 여행지 조합 추천')
-            st.write(f"{st.session_state['package_logs'][-1]}, choice rows = {list(map(int,st.session_state['check_row']))}")
-            st.dataframe(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])
+            if st.button('HashTrip 경로기반 추천 결과'):
+                semi_text2 = write(stream_example(st.session_state['package_logs'][-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], pd.DataFrame(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])))
+            
+    #         stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]]))
+            # st.write('##### :red[최종 추천 결과]')
+            # st.markdown(f'- 총 합이 :red[{st.session_state.data["road"]} km]를 넘지않고 선호도가 최대인 여행지 조합 추천')
+            # st.markdown(f"- {st.session_state['package_logs'][-1]}, choice rows = {list(map(int,st.session_state['check_row']))}")
+            # st.dataframe(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])
 with col2:
     if st.session_state['sec_number'] == 1:
         st.session_state['sec_number'] = 2
