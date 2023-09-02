@@ -446,27 +446,27 @@ if st.session_state['sec_number']  == 0:
                 pix = i.get_pixmap()
                 pix.save("page-%i.png" % i.number)
             
-        seper4, seper5, seper6 = st.columns([120,80,120])
-        seper44, seper55, seper66 = st.columns([30,120,30])
-        seper7, seper8, seper9 = st.columns([120,80,120])   
-        with seper5:
-            st.button('여행스타그램 전체 과정 정리', disabled=True)
-        with seper55:
-            st.write(' ')
-            st.write(' ')
-            st.write(' ')
-            image_list = glob(f'page-*.png')
-            image_list.sort()
-            number = ste.select_slider(
-                '**HashTrip PDF 미리보기**',
-                options=image_list,
-                key="select_slider",
-            )
-            st.image(number, width=600)
-        
-        with seper8:
-            with open('template.pdf', 'rb') as f:
-                st.download_button(':blue[⬇ Download HashTrip PDF]', f, file_name='HashTrip.pdf')
+            seper4, seper5, seper6 = st.columns([120,80,120])
+            seper44, seper55, seper66 = st.columns([30,120,30])
+            seper7, seper8, seper9 = st.columns([120,80,120])   
+            with seper5:
+                st.button('여행스타그램 전체 과정 정리', disabled=True)
+            with seper55:
+                st.write(' ')
+                st.write(' ')
+                st.write(' ')
+                image_list = glob(f'page-*.png')
+                image_list.sort()
+                number = ste.select_slider(
+                    '**HashTrip PDF 미리보기**',
+                    options=image_list,
+                    key="select_slider",
+                )
+                st.image(number, width=600)
+            
+            with seper8:
+                with open('template.pdf', 'rb') as f:
+                    st.download_button(':blue[⬇ Download HashTrip PDF]', f, file_name='HashTrip.pdf')
             # st.write('##### :red[**최종 추천 결과**]')
             # st.markdown(f'- 총 합이 :red[**{st.session_state.data["road"]} km**]를 넘지않고 선호도가 최대인 여행지 조합 추천')
             # st.markdown(f'- {package_logs[-1]}, choice rows = {list(map(int,check_row))}')
@@ -493,27 +493,27 @@ else:
             for i in pdf_doc:
                 pix = i.get_pixmap()
                 pix.save("page-%i.png" % i.number)        
-        seper4, seper5, seper6 = st.columns([120,80,120])
-        seper44, seper55, seper66 = st.columns([30,120,30])
-        seper7, seper8, seper9 = st.columns([120,80,120])   
-        with seper5:
-            st.button('여행스타그램 전체 과정 정리', disabled=True)
-        with seper55:
-            st.write(' ')
-            st.write(' ')
-            st.write(' ')
-            image_list = glob(f'page-*.png')
-            image_list.sort()
-            number = ste.select_slider(
-                '**HashTrip PDF 미리보기**',
-                options=image_list,
-                key="select_slider",
-            )
-            st.image(number, width=600)
-        
-        with seper8:
-            with open('template.pdf', 'rb') as f:
-                st.download_button(':blue[⬇ Download HashTrip PDF]', f, file_name='HashTrip.pdf')
+            seper4, seper5, seper6 = st.columns([120,80,120])
+            seper44, seper55, seper66 = st.columns([30,120,30])
+            seper7, seper8, seper9 = st.columns([120,80,120])   
+            with seper5:
+                st.button('여행스타그램 전체 과정 정리', disabled=True)
+            with seper55:
+                st.write(' ')
+                st.write(' ')
+                st.write(' ')
+                image_list = glob(f'page-*.png')
+                image_list.sort()
+                number = ste.select_slider(
+                    '**HashTrip PDF 미리보기**',
+                    options=image_list,
+                    key="select_slider",
+                )
+                st.image(number, width=600)
+            
+            with seper8:
+                with open('template.pdf', 'rb') as f:
+                    st.download_button(':blue[⬇ Download HashTrip PDF]', f, file_name='HashTrip.pdf')
     #         stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]]))
             # st.write('##### :red[최종 추천 결과]')
             # st.markdown(f'- 총 합이 :red[{st.session_state.data["road"]} km]를 넘지않고 선호도가 최대인 여행지 조합 추천')
