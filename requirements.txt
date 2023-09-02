@@ -26,6 +26,5 @@ haversine
 deap
 matplotlib
 pandas
-dataframe_image
 
 
