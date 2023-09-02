@@ -31,6 +31,7 @@ if "sec_number" not in st.session_state:
     st.session_state['sec_number'] = 0
     st.session_state['check_row'] = 0
     st.session_state['package_logs'] = 0
+    st.session_state['out_text'] = 0
     
 st.markdown(
     """
@@ -432,18 +433,18 @@ if st.session_state['sec_number']  == 0:
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
                 semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])))
-                
-                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2)
-                font_config = FontConfiguration()
-                html = HTML(string=string_html, base_url='.')
-                css = CSS(string=css_string, font_config=font_config)
-                html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
-                pdf_doc = fitz.open('template.pdf')
-                for i in pdf_doc:
-                    pix = i.get_pixmap()
-                    pix.save("page-%i.png" % i.number)
-    
+                st.session_state['out_text'] = semi_text2
     with col2:            
+        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'])
+        font_config = FontConfiguration()
+        html = HTML(string=string_html, base_url='.')
+        css = CSS(string=css_string, font_config=font_config)
+        html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
+        pdf_doc = fitz.open('template.pdf')
+        for i in pdf_doc:
+            pix = i.get_pixmap()
+            pix.save("page-%i.png" % i.number)
+            
         seper4, seper5, seper6 = st.columns([120,80,120])
         seper44, seper55, seper66 = st.columns([30,120,30])
         seper7, seper8, seper9 = st.columns([120,80,120])   
@@ -478,9 +479,18 @@ else:
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
                 semi_text2 = write(stream_example(st.session_state['package_logs'][-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], pd.DataFrame(data_df.iloc[st.session_state['check_row']][data_df.columns[1:]])))
-
+                st.session_state['out_text'] = semi_text2
         
-    with col2:            
+    with col2:         
+        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'])
+        font_config = FontConfiguration()
+        html = HTML(string=string_html, base_url='.')
+        css = CSS(string=css_string, font_config=font_config)
+        html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
+        pdf_doc = fitz.open('template.pdf')
+        for i in pdf_doc:
+            pix = i.get_pixmap()
+            pix.save("page-%i.png" % i.number)        
         seper4, seper5, seper6 = st.columns([120,80,120])
         seper44, seper55, seper66 = st.columns([30,120,30])
         seper7, seper8, seper9 = st.columns([120,80,120])   
