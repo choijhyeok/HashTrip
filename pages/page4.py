@@ -454,14 +454,6 @@ with col1:
                 html = HTML(string=string_html, base_url='.')
                 css = CSS(string=css_string, font_config=font_config)
                 html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
-                
-                while True:
-                    if 'template.pdf' in os.llistdir():
-                        pdf_doc = fitz.open('template.pdf')
-                        for i in pdf_doc:
-                            pix = i.get_pixmap()
-                            pix.save("page-%i.png" % i.number)        
-                        break
                 st.session_state['sec_number'] =2
     else:
         st.image('result.png')
@@ -491,6 +483,10 @@ with col1:
                 
 with col2:
     if st.session_state['sec_number'] == 2:
+        pdf_doc = fitz.open('template.pdf')
+        for i in pdf_doc:
+            pix = i.get_pixmap()
+            pix.save(f"page-{i.number}.png" )       
         seper4, seper5, seper6 = st.columns([120,80,120])
         seper44, seper55, seper66 = st.columns([30,120,30])
         seper7, seper8, seper9 = st.columns([120,80,120])   
