@@ -484,7 +484,6 @@ with col1:
                 
 with col2:
     if st.session_state['sec_number'] == 1:
-        st.session_state['sec_number']=2
         # sort_check_row = list(map(int,st.session_state['check_row']))
         # st.write(sort_check_row)
         # st.write(st.session_state['out_text'])
@@ -497,7 +496,10 @@ with col2:
         pdf_doc = fitz.open('HashTrip.pdf')
         for i in pdf_doc:
             pix = i.get_pixmap()
-            pix.save(f"page-{i.number}.png" )       
+            pix.save(f"page-{i.number}.png" )
+        st.session_state['sec_number']=2
+    
+    elif st.session_state['sec_number'] == 2:   
         seper4, seper5, seper6 = st.columns([120,80,120])
         seper44, seper55, seper66 = st.columns([30,120,30])
         seper7, seper8, seper9 = st.columns([120,80,120])   
