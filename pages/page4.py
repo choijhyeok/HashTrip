@@ -135,8 +135,8 @@ def make_html(html_string,data,gpt, out_text, data_frame):
         html_string += f'{idx}번 추천경로 : {sep_str} km : {n[-2]} 선호도총합 : {n[-1]}<br>'
 
     html_string += '<p>&nbsp;</p>'
-    new_out = out_text.replace('\n','<br>')
-    html_string +=f' <p>{new_out}</p></div></div></body>'
+    # new_out = out_text.replace('\n','<br>')
+    html_string +=f'<p>{out_text}</p></div></div></body>'
     return html_string
 
 #-------#
