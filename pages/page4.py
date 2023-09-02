@@ -435,7 +435,6 @@ with col1:
         st.button('경로기반 추천', disabled=True)
     
     if st.session_state['sec_number']  == 0:
-        st.session_state['sec_number'] =1
         center_running()
         check_row, package_logs = DEAP_float(data_df.sample(frac=1), st.session_state.data['road'])
         st.session_state['check_row'] = check_row
@@ -450,6 +449,7 @@ with col1:
                 semi_text2 = write(stream_example(package_logs[-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], df_render))
                 st.session_state['out_text'] = semi_text2[-1]
                 st.session_state['data_frame'] = df_render
+                st.session_state['sec_number'] =1
                 # string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
                 # font_config = FontConfiguration()
                 # html = HTML(string=string_html, base_url='.')
