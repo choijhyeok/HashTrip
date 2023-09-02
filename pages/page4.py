@@ -448,12 +448,12 @@ with col1:
                 df_render = pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])
                 semi_text2 = write(stream_example(package_logs[-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], df_render))
                 st.session_state['out_text'] = semi_text2[-1]
-                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
-                font_config = FontConfiguration()
-                html = HTML(string=string_html, base_url='.')
-                css = CSS(string=css_string, font_config=font_config)
-                html.write_pdf('HashTrip.pdf', stylesheets=[css], font_config=font_config)
-                st.session_state['sec_number'] =2
+                # string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
+                # font_config = FontConfiguration()
+                # html = HTML(string=string_html, base_url='.')
+                # css = CSS(string=css_string, font_config=font_config)
+                # html.write_pdf('HashTrip.pdf', stylesheets=[css], font_config=font_config)
+                # st.session_state['sec_number'] =2
     else:
         st.image('result.png')
         st.divider()
@@ -481,8 +481,13 @@ with col1:
 #                 st.session_state['sec_number'] =2
                 
 with col2:
-    if st.session_state['sec_number'] == 2:
-        print(os.listdir())
+    if st.session_state['sec_number'] == 1:
+        st.session_state['sec_number']=2
+        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
+        font_config = FontConfiguration()
+        html = HTML(string=string_html, base_url='.')
+        css = CSS(string=css_string, font_config=font_config)
+        html.write_pdf('HashTrip.pdf', stylesheets=[css], font_config=font_config)
         pdf_doc = fitz.open('HashTrip.pdf')
         for i in pdf_doc:
             pix = i.get_pixmap()
