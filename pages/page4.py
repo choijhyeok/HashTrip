@@ -124,6 +124,10 @@ def make_html(html_string,data,gpt, out_text, data_frame):
     html_string += "<h2 id='유전-알고리즘을-통한-최적의-여행-조합-추천'><span>유전 알고리즘을 통한 최적의 여행 조합 추천</span></h2>"
     html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"></p><p>&nbsp;</p>'
     
+    new_out = out_text.replace('\n','<br>')
+    html_string +=f'<p>{new_out}</p>'
+    html_string += '<p>&nbsp;</p>'
+    
     for idx, n in enumerate(data_frame):
         sep_str = ''
         for j in range(len(n[:-2])):
@@ -134,9 +138,7 @@ def make_html(html_string,data,gpt, out_text, data_frame):
                 sep_str += str(n[j])
         html_string += f'{idx}번 추천경로 : {sep_str} km : {n[-2]} 선호도총합 : {n[-1]}<br>'
 
-    html_string += '<p>&nbsp;</p>'
-    new_out = out_text.replace('\n','<br>')
-    html_string +=f'<p>{new_out}</p></div></div></body>'
+    html_string +='</div></div></body>'
     return html_string
 
 #-------#
@@ -496,14 +498,7 @@ with col2:
         # st.write(st.session_state['out_text'])
         # st.write(st.session_state['data_frame'])
         
-        pdf_text2 = f'''
-        Hashtrip의 최종 여행의 추천입니다. \n\n
-        
-        입력된 최대거리 {st.session_state.data['road']}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
-        해당 여행지의 합산 거리, 합산 선호도는  {st.session_state["package_logs"][-1]} 입니다. \n\n
-        
-        추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
-        '''
+        pdf_text2 = f'''Hashtrip의 최종 여행의 추천입니다. \n 입력된 최대거리 {st.session_state.data['road']}km를 기반으로 유전알고리즘 추천을 했을때 아래 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다.  해당 여행지의 합산 거리, 합산 선호도는  {st.session_state["package_logs"][-1]} 입니다.  추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. '''
         string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,pdf_text2,st.session_state['data_frame'].values)
         font_config = FontConfiguration()
         html = HTML(string=string_html, base_url='.')
