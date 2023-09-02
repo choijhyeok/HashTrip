@@ -21,6 +21,7 @@ if "back_page" not in st.session_state:
     st.session_state.back_page = 1
     st.session_state.go_back_page = False
     st.session_state.go_next_page = False
+    st.session_state.pdf_data2 = st.session_state.pdf_data
     
     
     

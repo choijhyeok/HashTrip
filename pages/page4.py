@@ -423,7 +423,7 @@ htmlf = open('template.html')
 html_string = htmlf.read()
 cssf = open('template.css')
 css_string = cssf.read()
-data_df = product_sep(st.session_state.pdf_data,list(st.session_state.pdf_data.keys()))
+data_df = product_sep(st.session_state.pdf_data2,list(st.session_state.pdf_data2.keys()))
 data_df = pd.DataFrame(data_df)
 
 
@@ -450,7 +450,7 @@ with col1:
                 st.session_state['out_text'] = semi_text2[-1]
                 st.session_state['data_frame'] = df_render
                 st.session_state['sec_number'] =1
-                # string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
+                # string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
                 # font_config = FontConfiguration()
                 # html = HTML(string=string_html, base_url='.')
                 # css = CSS(string=css_string, font_config=font_config)
@@ -488,7 +488,7 @@ with col2:
         # st.write(sort_check_row)
         # st.write(st.session_state['out_text'])
         # st.write(st.session_state['data_frame'])
-        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'] ,st.session_state['data_frame'].values)
+        string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,st.session_state['out_text'] ,st.session_state['data_frame'].values)
         font_config = FontConfiguration()
         html = HTML(string=string_html, base_url='.')
         css = CSS(string=css_string, font_config=font_config)
@@ -526,7 +526,7 @@ with col2:
 # with col2:
 #     if st.session_state['sec_number'] == 1:
 #         st.session_state['sec_number'] = 2
-#         # string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['semi_text2'])
+#         # string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,st.session_state['semi_text2'])
 #         # font_config = FontConfiguration()
 #         # html = HTML(string=string_html, base_url='.')
 #         # css = CSS(string=css_string, font_config=font_config)
