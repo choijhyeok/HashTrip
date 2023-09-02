@@ -8,7 +8,7 @@ PyKakao==0.0.4
 requests==2.31.0
 streamlit==1.25.0
 streamlit-elements==0.1.0 
-streamlit-extras==0.2.7 
+streamlit-extras==0.3.0
 streamlit-folium==0.13.0 
 streamlit-image-select==0.6.0 
 streamlit-js-eval==0.1.5 
@@ -26,5 +26,6 @@ haversine
 deap
 matplotlib
 pandas
+dataframe_image
 
 
