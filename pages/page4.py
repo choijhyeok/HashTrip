@@ -482,6 +482,7 @@ with col1:
                 
 with col2:
     if st.session_state['sec_number'] == 2:
+        print(os.listdir())
         pdf_doc = fitz.open('template.pdf')
         for i in pdf_doc:
             pix = i.get_pixmap()
