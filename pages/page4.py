@@ -483,7 +483,7 @@ with col1:
 with col2:
     if st.session_state['sec_number'] == 1:
         st.session_state['sec_number']=2
-        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
+        string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'] ,df_render.iloc[list(map(int,st.session_state['check_row']))].values)
         font_config = FontConfiguration()
         html = HTML(string=string_html, base_url='.')
         css = CSS(string=css_string, font_config=font_config)
