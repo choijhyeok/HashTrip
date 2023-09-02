@@ -126,7 +126,7 @@ def make_html(html_string,data,gpt, out_text, data_frame):
     
     for idx, n in enumerate(data_frame):
         sep_str = ''
-        for j in range(len(n[1:-2])):
+        for j in range(len(n[0:-2])):
             if j != len(n[1:-2])-1:
                 sep_str += str(n[j])
                 sep_str += '->'
@@ -402,7 +402,14 @@ def stream_example(package_logs, check_row, road, df):
     
     추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
     '''
+    pdf_text2 = f'''
+    Hashtrip의 최종 여행의 추천입니다. \n\n
     
+    입력된 최대거리 {road}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
+    해당 여행지의 합산 거리, 합산 선호도는  {package_logs} 입니다. \n\n
+    
+    추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
+    '''
     # dfi.export(df, 'DF.png', max_cols=-1, max_rows=-1)
     
     
@@ -416,7 +423,7 @@ def stream_example(package_logs, check_row, road, df):
         yield word + " "
         time.sleep(0.05)
     
-    return semi_text2
+    return pdf_text2
 
 
 htmlf = open('template.html')
