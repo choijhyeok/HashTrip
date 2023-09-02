@@ -452,7 +452,7 @@ with col1:
                 font_config = FontConfiguration()
                 html = HTML(string=string_html, base_url='.')
                 css = CSS(string=css_string, font_config=font_config)
-                html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
+                html.write_pdf('HashTrip.pdf', stylesheets=[css], font_config=font_config)
                 st.session_state['sec_number'] =2
     else:
         st.image('result.png')
@@ -483,7 +483,7 @@ with col1:
 with col2:
     if st.session_state['sec_number'] == 2:
         print(os.listdir())
-        pdf_doc = fitz.open('template.pdf')
+        pdf_doc = fitz.open('HashTrip.pdf')
         for i in pdf_doc:
             pix = i.get_pixmap()
             pix.save(f"page-{i.number}.png" )       
@@ -506,7 +506,7 @@ with col2:
             st.image(number, width=600)
         
         with seper8:
-            with open('template.pdf', 'rb') as f:
+            with open('HashTrip.pdf', 'rb') as f:
                 st.download_button(':blue[⬇ Download HashTrip PDF]', f, file_name='HashTrip.pdf')
 
 
