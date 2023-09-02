@@ -390,7 +390,7 @@ def product_sep(data,keys):
 def stream_example(package_logs, check_row, road, df):
     semi_text1 = f'''
 
-    ##### :red[**최종 추천 결과**] 
+    :red[**최종 추천 결과**] 
     
     :총 합이 :red[**{road}**] km를 넘지않고 선호도가 최대인 여행지 조합 추천 {package_logs}, choice rows = {check_row}
     '''
@@ -402,14 +402,14 @@ def stream_example(package_logs, check_row, road, df):
     
     추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
     '''
-    pdf_text2 = f'''
-    Hashtrip의 최종 여행의 추천입니다. \n\n
+    # pdf_text2 = f'''
+    # Hashtrip의 최종 여행의 추천입니다. \n\n
     
-    입력된 최대거리 {road}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
-    해당 여행지의 합산 거리, 합산 선호도는  {package_logs} 입니다. \n\n
+    # 입력된 최대거리 {road}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
+    # 해당 여행지의 합산 거리, 합산 선호도는  {package_logs} 입니다. \n\n
     
-    추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
-    '''
+    # 추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
+    # '''
     # dfi.export(df, 'DF.png', max_cols=-1, max_rows=-1)
     
     
@@ -423,7 +423,7 @@ def stream_example(package_logs, check_row, road, df):
         yield word + " "
         time.sleep(0.05)
     
-    return pdf_text2
+    # return pdf_text2
 
 
 htmlf = open('template.html')
@@ -495,7 +495,16 @@ with col2:
         # st.write(sort_check_row)
         # st.write(st.session_state['out_text'])
         # st.write(st.session_state['data_frame'])
-        string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,st.session_state['out_text'] ,st.session_state['data_frame'].values)
+        
+        pdf_text2 = f'''
+        Hashtrip의 최종 여행의 추천입니다. \n\n
+        
+        입력된 최대거리 {st.session_state.data['road']}km를 기반으로 유전알고리즘 추천을 했을때 위의 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다. \n
+        해당 여행지의 합산 거리, 합산 선호도는  {st.session_state['package_logs']} 입니다. \n\n
+        
+        추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. 
+        '''
+        string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,pdf_text2,st.session_state['data_frame'].values)
         font_config = FontConfiguration()
         html = HTML(string=string_html, base_url='.')
         css = CSS(string=css_string, font_config=font_config)
