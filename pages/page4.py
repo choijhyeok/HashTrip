@@ -22,6 +22,7 @@ import streamlit_ext as ste
 import fitz
 from weasyprint.text.fonts import FontConfiguration
 from weasyprint import HTML, CSS
+import os
 plt.rcParams['figure.figsize'] = [15, 8]
 st.set_page_config(page_title="HashTrip",initial_sidebar_state="collapsed",layout="wide")
 
@@ -453,10 +454,14 @@ with col1:
                 html = HTML(string=string_html, base_url='.')
                 css = CSS(string=css_string, font_config=font_config)
                 html.write_pdf('template.pdf', stylesheets=[css], font_config=font_config)
-                pdf_doc = fitz.open('template.pdf')
-                for i in pdf_doc:
-                    pix = i.get_pixmap()
-                    pix.save("page-%i.png" % i.number)        
+                
+                while True:
+                    if 'template.pdf' in os.llistdir():
+                        pdf_doc = fitz.open('template.pdf')
+                        for i in pdf_doc:
+                            pix = i.get_pixmap()
+                            pix.save("page-%i.png" % i.number)        
+                        break
                 st.session_state['sec_number'] =2
     else:
         st.image('result.png')
