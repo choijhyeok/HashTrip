@@ -127,6 +127,11 @@ class Card(Dashboard.Item):
                 mui.IconButton(mui.icon.Favorite)
                 mui.IconButton(mui.icon.Share)
 
+# def load_lottieurl(url: str):
+#     r = requests.get(url)
+#     if r.status_code != 200:
+#         return None
+#     return r.json()
 
 def instagram_gpt(text):
     instagram_template = """다음 내용을 220자 이내의 인스타그램 피드처럼 바꿔주세요. {text}"""
@@ -141,7 +146,9 @@ def add_choice():
     st.session_state.go_next_page = True
     for i in range(len(total_name)):
         st.session_state.data[f'set{i}'] += int(eval(f'st.session_state.select{i}').split('점')[0])
+        print(i,':',st.session_state.data[f'set{i}'])
     st.session_state.data['road'] += st.session_state.road
+    print('road :', st.session_state.data['road'] )
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 
@@ -179,13 +186,14 @@ div.stButton > button:first-child {
 
 
 def trip_instagram():    
+    # with st.form('여행스타그램 form', clear_on_submit=True):
     empyt1,con,empty2 = st.columns([30,20,30])
     e1,first,e2 = st.columns([160,20,160])
 
     
 
     total_number = 0
-    keys_name = list(st.session_state.ans.keys())
+    keys_name = list(st.session_state.ans2.keys())
     total_context = []
     total_hashtag= []
     total_name = []
@@ -199,9 +207,9 @@ def trip_instagram():
 
     for i in keys_name:
         if total_number == 1:
-            total_answer += [st.session_state.ans[i].split(f'조회된 개수보다 추천 수가 많아서 조회된 개수 {total_number}개 내에서 추천하는 것으로 변경되었습니다. \n\n ')[-1]]
+            total_answer += [st.session_state.ans2[i].split(f'조회된 개수보다 추천 수가 많아서 조회된 개수 {total_number}개 내에서 추천하는 것으로 변경되었습니다. \n\n ')[-1]]
         else:
-            total_answer += st.session_state.ans[i].split('\n\n')
+            total_answer += st.session_state.ans2[i].split('\n\n')
 
     for i in keys_name:
         for j in st.session_state.data[i]:
@@ -224,7 +232,7 @@ def trip_instagram():
         st.session_state.gpt[i] = [total_context[-1]]
 
 
-    # st.write(st.session_state.ans)
+    # st.write(st.session_state.ans2)
     # st.write(st.session_state.data)
 
     # st.write(total_answer)
@@ -293,7 +301,7 @@ def trip_instagram():
                     text = text.replace("'",' ').strip()
                     eval(f'w.card{i}("""{text}""")')
                     
-    return total_name
+    return total_name, total_number
 
 def trip_select_number(total_name):
     with st.form('여행 경로 form'):
@@ -302,6 +310,7 @@ def trip_select_number(total_name):
         st.session_state.next_data = {}
         st.markdown('#### HashTrip 경로 기반 추천')
         st.markdown('- HashTrip 게시물을 확인하시고 가고싶은 여행지의 선호도를 입력해 주세요. (1~10점 중복가능)')
+        
 
         
         st.write(' ')
@@ -312,6 +321,10 @@ def trip_select_number(total_name):
         for i in range(len(total_name)):
             st.session_state.data[f'set{i}'] = 0
         st.session_state.data['road'] = 0
+        min_value = 1
+        max_value = 10
+       
+            
         
 
         if len(total_name) > 4:
@@ -319,7 +332,9 @@ def trip_select_number(total_name):
             
             for i in range(col_num):
                 globals()[f'columns{i}'] = st.columns(4)
-
+            # columns1 =  st.columns(4)
+            # columns2 = st.columns(len(total_name) - 4)
+            
             cnt = 0
             ncol = 0
             for idx, name in enumerate(total_name):
@@ -402,6 +417,7 @@ if instagram_make:
 
      
     if total_name:
+        # st.session_state.trigger 
         cols_place.empty()
         placeholder.empty()
         loading_place.empty()
