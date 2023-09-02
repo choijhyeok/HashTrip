@@ -47,7 +47,7 @@ LOCAL = Local(service_key = kakao_key)
 DAUM = DaumSearch(service_key = kakao_key)
 st.set_page_config(page_title="HashTrip",initial_sidebar_state="collapsed",layout="wide")
 check_real = {0:12, 1:14, 2:15, 3:25, 4:28, 5:32, 6:38, 7:39}
-real_name = {12:'관광지', 14:'문화시설', 15:'축제공연행사', 25:'여행코스', 28:'레포츠', 32:'숙박', 38:'쇼핑', 39:'음식점'}
+real_name = {12:'관광지', 14:'문화시설', 15:'행사', 25:'여행코스', 28:'레포츠', 32:'숙박', 38:'쇼핑', 39:'음식점'}
 embeddings = OpenAIEmbeddings()
 state = st.session_state
 
