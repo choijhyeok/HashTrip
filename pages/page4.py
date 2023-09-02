@@ -87,7 +87,7 @@ def make_html(html_string,data,gpt, out_text, data_frame):
 
 
     # GPT -> instagram 변경 생성
-    html_string += "<h2 id='chatgpt로-작성한-인스타그램-피드'><span>ChatGPT로 작성한 인스타그램 피드</span></h2>"
+    html_string += "<h2 id='ChatGPT로 작성한 HashTrip 게시물'><span>ChatGPT로 작성한 HashTrip 게시물</span></h2>"
 
     for key,value in gpt.items():
         sep_value = value[0].replace('\n','<br>')
@@ -126,8 +126,8 @@ def make_html(html_string,data,gpt, out_text, data_frame):
     
     for idx, n in enumerate(data_frame):
         sep_str = ''
-        for j in range(len(n[0:-2])):
-            if j != len(n[1:-2])-1:
+        for j in range(len(n[:-2])):
+            if j != len(n[:-2])-1:
                 sep_str += str(n[j])
                 sep_str += '->'
             else:
