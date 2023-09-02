@@ -122,8 +122,17 @@ def make_html(html_string,data,gpt, out_text, data_frame):
     # 유전알고리즘
     html_string += "<h2 id='유전-알고리즘을-통한-최적의-여행-조합-추천'><span>유전 알고리즘을 통한 최적의 여행 조합 추천</span></h2>"
     html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"></p><p>&nbsp;</p>'
-    html_string += data_frame.to_html()
-    print(data_frame.to_html())
+    
+    for idx, n in enumerate(data_frame):
+        sep_str = ''
+        for j in range(len(n[1:-2])):
+            if j != len(n[1:-2])-1:
+                sep_str += str(n[j])
+                sep_str += '->'
+            else:
+                sep_str += str(n[j])
+        html_string += f'{idx}번 추천경로 : {sep_str} km : {n[-2]} 선호도총합 : {n[-1]}<br>'
+
     html_string += '<p>&nbsp;</p>'
     new_out = out_text.replace('\n','<br>')
     html_string +=f' <p>{new_out}</p></div></div></body>'
@@ -437,10 +446,9 @@ with col1:
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
                 df_render = pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])
-                semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], df_render))
+                semi_text2 = write(stream_example(package_logs[-1], list(map(int,st.session_state['check_row'])), st.session_state.data["road"], df_render))
                 st.session_state['out_text'] = semi_text2[-1]
-                
-                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'],df_render)
+                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,semi_text2[-1],df_render.iloc[list(map(int,st.session_state['check_row']))].values)
                 font_config = FontConfiguration()
                 html = HTML(string=string_html, base_url='.')
                 css = CSS(string=css_string, font_config=font_config)
