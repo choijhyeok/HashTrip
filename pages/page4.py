@@ -67,7 +67,7 @@ col1, col2 = st.columns([50,50])
 
 
 
-def make_html(html_string,data,gpt, out_text):
+def make_html(html_string,data,gpt, out_text, df):
     for key in data.keys():
         html_string += f"<h3 id='{key}-1'><span>{key}</span></h3><p>"
         for idx, n in enumerate(data[key]['name']):
@@ -121,7 +121,9 @@ def make_html(html_string,data,gpt, out_text):
 
     # 유전알고리즘
     html_string += "<h2 id='유전-알고리즘을-통한-최적의-여행-조합-추천'><span>유전 알고리즘을 통한 최적의 여행 조합 추천</span></h2>"
-    html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"><img src="DF.png" referrerpolicy="no-referrer" alt="유전알고리즘으로 추천된 df"></p><p>&nbsp;</p>'
+    html_string += '<p><img src="result.png" referrerpolicy="no-referrer" alt="유전알고리즘 그래프"></p><p>&nbsp;</p>'
+    html_string += df.to_html()
+    html_string += '<p>&nbsp;</p>'
     new_out = out_text.replace('\n','<br>')
     html_string +=f' <p>{new_out}</p></div></div></body>'
     return html_string
@@ -433,10 +435,11 @@ with col1:
         seper11, seper22, seper33 = st.columns([30,200,30])
         with seper22:
             if st.button('HashTrip 경로기반 추천 결과'):
-                semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])))
+                df_render = pd.DataFrame(data_df.iloc[check_row][data_df.columns[1:]])
+                semi_text2 = write(stream_example(package_logs[-1], list(map(int,check_row)), st.session_state.data["road"], df_render))
                 st.session_state['out_text'] = semi_text2[-1]
                 
-                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'])
+                string_html = make_html(html_string,st.session_state.pdf_data,st.session_state.gpt,st.session_state['out_text'],df_render)
                 font_config = FontConfiguration()
                 html = HTML(string=string_html, base_url='.')
                 css = CSS(string=css_string, font_config=font_config)
