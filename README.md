@@ -20,7 +20,10 @@
           <li>변환된 VectorDB와 ChatGPT를 langchain을 통해 연결후 ChatGPT에게 사전에 설정한 추천수 만큼 추천을 수행하게 됩니다.</li>
           <li>추천된 결과는 지도, 추천장소, ChatGPT 장소 추천이유, 추천장소 이미지, 해당 장소관련 블로그 리뷰글 이 추천됩니다.</li>
           </br>
-            <details> <summary><b>추천 화면</b></summary> 나중에 gif 들어갈곳 </details>
+            <details> 
+              <summary><b>추천 화면</b></summary> 
+              <img src="./docs/page2.gif" width=100%> 
+            </details>
       </ul>
       
   </br>
@@ -29,7 +32,10 @@
       <li>모든 결과를 instagram의 feed 형식으로 다시한번 전달하여 사용자가 맘에드는 장소에 대한 최대 여행 가능 거리, 관광지별 선호도 점수를 받아서 유전알고리즘으로 관광지 경로를 추천합니다.</li>
       <li>최종적으로 여태까지의 모든 과정을 PDF로 만들어서 사용자가 다운받아 보실수 있습니다.</li>
           </br>
-            <details> <summary><b>관광지 경로 추천 및 PDF 화면</b></summary> 나중에 gif 들어갈곳 </details>
+            <details> 
+              <summary><b>관광지 경로 추천 및 PDF 화면</b></summary> 
+              <img src="./docs/page3.gif" width=100%> 
+            </details>
     </ul>
 
   
