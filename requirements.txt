@@ -21,7 +21,7 @@ toml==0.10.2
 pysqlite3-binary
 pymupdf==1.22.5
 streamlit-ext
-weasyprint
+weasyprint==60.2
 haversine
 deap
 matplotlib
