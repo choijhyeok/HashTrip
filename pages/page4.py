@@ -71,8 +71,9 @@ col1, col2 = st.columns([50,50])
 def make_html(html_string,data,gpt, out_text, data_frame):
     for key in data.keys():
         html_string += f"<h3 id='{key}-1'><span>{key}</span></h3><p>"
-        for idx, n in enumerate(data[key]['name']):
-            if (idx !=0) and (idx%4 ==0) and (len(data[key]['name'])-1 != idx) :
+        re_name = [i.split(':')[0].strip() for i in data[key]['name']]
+        for idx, n in enumerate(re_name):
+            if (idx !=0) and (idx%4 ==0) and (len(re_name)-1 != idx) :
                 html_string += '</p><p>'
             html_string += f"<a href='{data[key]['blog'][idx]}'><span>{idx+1}.{n}</span></a><span>  </span>" 
         html_string += '</p><p>'
@@ -136,7 +137,7 @@ def make_html(html_string,data,gpt, out_text, data_frame):
                 sep_str += '->'
             else:
                 sep_str += str(n[j])
-        html_string += f'{idx}번 추천경로 : {sep_str} km : {n[-2]} 선호도총합 : {n[-1]}<br>'
+        html_string += f'{idx}번 추천경로 : {sep_str.split(":")[0].strip()} km : {n[-2]} 선호도총합 : {n[-1]}<br>'
 
     html_string +='</div></div></body>'
     return html_string
@@ -310,11 +311,12 @@ def product_sep(data,keys):
     
     cnt = 0
     for  i in keys:
-        all_vars.append(data[i]['name'])
+        re_name = [i.split(':')[0].strip() for i in data[i]['name']]
+        all_vars.append(re_name)
         all_y.append(data[i]['y'])
         all_x.append(data[i]['x'])
         
-        for j in data[i]['name']:
+        for j in re_name:
             preference_dict[j] =  st.session_state.data[f'set{cnt}']
             cnt += 1
     
@@ -435,7 +437,7 @@ css_string = cssf.read()
 data_df = product_sep(st.session_state.pdf_data2,list(st.session_state.pdf_data2.keys()))
 data_df = pd.DataFrame(data_df)
 
-
+# print(data_df)
 
     
 with col1:
@@ -500,9 +502,11 @@ with col2:
         
         pdf_text2 = f'''Hashtrip의 최종 여행의 추천입니다. \n 입력된 최대거리 {st.session_state.data['road']}km를 기반으로 유전알고리즘 추천을 했을때 아래 추천 조합이 최대거리를 넘지않으면서 최대의 선호도 점수를 기록하는 여행지 입니다.  해당 여행지의 합산 거리, 합산 선호도는  {st.session_state["package_logs"][-1]} 입니다.  추천된 조합을 여행에 참고하셔서 즐거운 여행 되시길 바랍니다. '''
         string_html = make_html(html_string,st.session_state.pdf_data2,st.session_state.gpt,pdf_text2,st.session_state['data_frame'].values)
+        # print(string_html)
         font_config = FontConfiguration()
         html = HTML(string=string_html, base_url='.')
         css = CSS(string=css_string, font_config=font_config)
+        # print(html)
         html.write_pdf('HashTrip.pdf', stylesheets=[css], font_config=font_config)
         pdf_doc = fitz.open('HashTrip.pdf')
         for i in pdf_doc:

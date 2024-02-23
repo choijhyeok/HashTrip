@@ -14,7 +14,7 @@ import os
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import Chroma
+
 from langchain.docstore.document import Document
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
@@ -36,12 +36,15 @@ from langchain.vectorstores import Chroma
 from streamlit_js_eval import streamlit_js_eval
 import requests
 import time
+import re
 from streamlit_extras.switch_page_button import switch_page
 import warnings
 warnings.filterwarnings('ignore')
+
 openai_key = st.secrets["openAI_key"]
 openapi_key = st.secrets["openAPI_key"]
 kakao_key = st.secrets["kakaO_key"]
+
 os.environ['OPENAI_API_KEY'] = openai_key
 LOCAL = Local(service_key = kakao_key)
 DAUM = DaumSearch(service_key = kakao_key)
@@ -77,9 +80,19 @@ def swich_to_next():
     state.go_back = True
     state.submitted = False
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
-    
+
+# blog글 이상한 테그 이런거 싹다 제거
+def remove_html_tags_and_unicode(all_):
+    """HTML 태그와 특정 유니코드 문자를 제거하는 함수"""
+    text = re.sub('<.*?>', '', all_)  # HTML 태그 제거
+    text = re.sub('\u200b', '', text)  # \u200b 문자 제거
+    return text
+
+
+
 def xy_search(df, setting_number = 10, search_number = 12):
-    url = '	https://apis.data.go.kr/B551011/KorService1/locationBasedList1'
+    # print(setting_number, search_number, df['x'][0], df['y'][0])
+    url = 'http://apis.data.go.kr/B551011/KorService1/locationBasedList1'
     queryParams = f'?{parse.quote_plus("serviceKey")}={openapi_key}&' + parse.urlencode({ 
                             parse.quote_plus('MobileOS') : 'ETC',
                             parse.quote_plus('MobileApp') : 'MobileApp',
@@ -92,6 +105,8 @@ def xy_search(df, setting_number = 10, search_number = 12):
 
     response = requests.get(url + queryParams)
     json_object = json.loads(response.text)
+    # print('*'*50, 'json_object')
+    # print(json_object)
     if len(json_object['response']['body']['items']) > 0:
         return xy_json(json_object)
     else:
@@ -104,7 +119,7 @@ def kakao_imagae(input_text):
     header = {'authorization': f'KakaoAK {kakao_key}'}
     response = requests.request(method=method, url=url, headers=header, params=params )
     tokens = response.json()
-    return tokens['documents'][0]['image_url']
+    return  tokens['documents'][0]['image_url']
 
  
 def kakao_blogs(input_text):
@@ -114,35 +129,44 @@ def kakao_blogs(input_text):
     header = {'authorization': f'KakaoAK {kakao_key}'}
     response = requests.request(method=method, url=url, headers=header, params=params )
     tokens = response.json()
-    return [tokens['documents'][i]['url'] for i in range(len(tokens['documents']))]
+    return  remove_html_tags_and_unicode(''.join([i['contents'] for i in tokens['documents']])), [tokens['documents'][i]['url'] for i in range(len(tokens['documents']))]
 
 def xy_json(df_data):
+    # print('df_Data', df_data)
     data_js = dict()
     addr = []
     img = []
     name = []
+    name_sub = []
     mapx = []
     mapy = []
     blog_link = []
 
     for i in df_data['response']['body']['items']['item']:
         addr.append(i['addr1'])
-        if len(i['firstimage']):
+        
+        if i['firstimage'] != '':
             img.append(i['firstimage'])
         else:
             img.append(kakao_imagae(i['title']))
-        name.append(i['title'])
+        
         mapx.append(i['mapx'])
         mapy.append(i['mapy'])
-        blog_link.append(kakao_blogs(i['title']))
+        name.append(i['title'])
+        sub1,sub2 =  kakao_blogs(i['title'])
+        name_sub.append(sub1)
+        blog_link.append(sub2)
 
 
+    # print(name_sub)
+    # print(blog_link)
     # 혹시모를 빈값 방지
     data_js['addr'] =  [i  if i != '' else 'N'for i in addr]
     data_js['img'] = [i  if i != '' else 'N'for i in img]
     data_js['name'] = [i  if i != '' else 'N'for i in name]
     data_js['mapx'] = [i  if i != '' else 'N'for i in mapx]
     data_js['mapy'] = [i  if i != '' else 'N'for i in mapy]
+    data_js['name_sub'] = name_sub
     data_js['link'] = [i  if i != '' else 'N'for i in blog_link]
     # print(data_js)
     return data_js
@@ -152,8 +176,9 @@ def mk_db(df,sn):
     client = chromadb.PersistentClient(path=f"db{sn}")
     vec = []
     for n in range(len(df['addr'])):
-        vec.append(Document(page_content= df['name'][n], metadata={'source': 'json', 'seq_num': n, 'addr': df['addr'][n], 'img': df['img'][n], 'mapx': df['mapx'][n],  'mapy': df['mapy'][n]}))
+        vec.append(Document(page_content= f"{df['name'][n]} : {df['name_sub'][n]}", metadata={'source': 'json', 'seq_num': n, 'addr': df['addr'][n], 'img': df['img'][n], 'mapx': df['mapx'][n],  'mapy': df['mapy'][n]}))
     
+    # print(vec)
     globals()[f'vector_db{sn}'] = Chroma.from_documents(
                             client=client, 
                             documents=vec, 
@@ -165,7 +190,8 @@ def mk_db(df,sn):
 
 
 def QA_chatbot(_db, hash_str, rc ,op):
-    system_template = """To answer the question at the end, use the following context. If you don't know the answer, just say you don't know and don't try to make it up.
+
+    system_template = """To answer the question at the end, use the following context. 
 
     I want you to act as my hashtag travel recommendator. It tells you your hashtag, the number of recommendations, and suggests it according to the number of recommendations.
 
@@ -186,6 +212,7 @@ def QA_chatbot(_db, hash_str, rc ,op):
         chain_type_kwargs=chain_type_kwargs,
         return_source_documents = True
     )
+    # print('hash_str의 수 : ',hash_str)
     if op == 0:
         ans = bk_chain({"question": f'해시 태그 {hash_str}를 기반으로 {rc}개 추천설명을 수행해주세요.'})
         return  ans['answer'], ans['source_documents']
@@ -203,10 +230,25 @@ def add_form(name, df, hash_str, rc, sn):
         brunch_n = 0
     elif rc > count_brunch:
         op = 1
-        choice_ans, choice_doc= QA_chatbot(mk_db(df,sn), hash_str,count_brunch,op)
+        # print('*'*50, 'df의 내용')
+        # print(df)
+        # print('*'*50, 'sn의 내용')
+        # print(sn)
+        
+        # print('*'*50, 'db내용 확인')
+        db = mk_db(df,sn)
+        # print(db.get())
+        choice_ans, choice_doc= QA_chatbot(db, hash_str,count_brunch,op)
     elif rc <= count_brunch:
         op = 0
-        choice_ans, choice_doc= QA_chatbot(mk_db(df,sn), hash_str,rc,op)
+        # print('*'*50, 'df의 내용')
+        # print(df)
+        # print('*'*50, 'sn의 내용')
+        # print(sn)
+        # print('*'*50, 'db내용 확인')
+        db = mk_db(df,sn)
+        # print(db.get())
+        choice_ans, choice_doc= QA_chatbot(db, hash_str,rc,op)
     
     if brunch_n:
         r_mapx = [float(i.metadata['mapx']) for i in choice_doc]
@@ -236,7 +278,7 @@ def add_form(name, df, hash_str, rc, sn):
                 
                 for idx in range(len(r_num)):
                     folium.Marker(
-                            [r_mapy[idx], r_mapx[idx]], popup=r_addr[idx], tooltip= r_name[idx]
+                            [r_mapy[idx], r_mapx[idx]], popup=r_addr[idx], tooltip= r_name[idx].split(':')[0].strip()
                         ).add_to(m)
                         
                         
@@ -256,14 +298,15 @@ def add_form(name, df, hash_str, rc, sn):
                         img_selected = image_select(
                             label="ChatGPT가 추천한 장소의 이미지 입니다.",
                             images=r_img,
-                            captions=r_name,
+                            captions=[im.split(':')[0].strip() for im in r_name],
                             )
                     with c5:
                         linked_text = ' '
                         for li_int in range(len(r_num)):
-                            linked_text += f"[{li_int+1}.{r_name[li_int]}]({df['link'][r_num[li_int]][0]})"
+                            linked_text += f"[{li_int+1}.{r_name[li_int].split(':')[0].strip()}]({df['link'][r_num[li_int]][0]})"
                             state.pdf_data[name]['blog'].append(df['link'][r_num[li_int]][0])
                             linked_text += '  '
+                        # print(linked_text)
                         st.write(linked_text)
         return choice_ans, choice_doc, op
     else:
@@ -402,7 +445,7 @@ with left_column:
             
             if st.button('Submit', key='button1'):
                 gif_runner = st.image('hashloading.gif')
-                time.sleep(0.5)
+                # time.sleep(0.5)
                 for key_word in hash_list:
                     df_xy =  LOCAL.search_address(key_word, dataframe=True)
                     if len(df_xy):
@@ -411,6 +454,7 @@ with left_column:
                             if globals()[f'slid_number{idx + 1}'] == None:
                                 globals()[f'slid_number{idx + 1}']  = recomand_count+2
                             # st.write(df_xy)
+                            # time.sleep(2)
                             globals()[f'df_{idx}'] = xy_search(df_xy,setting_number = globals()[f'slid_number{idx + 1}'], search_number = number)
                         hash_str = [i.strip() for i in hash_tags.split(f'#{key_word}') if len(i)>1]
                         if len(hash_str) == 1:

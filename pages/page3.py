@@ -137,6 +137,7 @@ class Card(Dashboard.Item):
 def instagram_gpt(text):
     instagram_template = """다음 내용을 220자 이내의 인스타그램 피드처럼 바꿔주세요. {text}"""
     instagram_chain = LLMChain(llm=ChatOpenAI(temperature=0), prompt=PromptTemplate.from_template(instagram_template))
+    # print('llmchain', len(instagram_chain({'text' : text})['text']))
     return instagram_chain({'text' : text})['text']
 
 def swich_to_next():
@@ -147,9 +148,9 @@ def add_choice():
     st.session_state.go_next_page = True
     for i in range(len(total_name)):
         st.session_state.data[f'set{i}'] += int(eval(f'st.session_state.select{i}').split('점')[0])
-        print(i,':',st.session_state.data[f'set{i}'])
+        # print(i,':',st.session_state.data[f'set{i}'])
     st.session_state.data['road'] += st.session_state.road
-    print('road :', st.session_state.data['road'] )
+    # print('road :', st.session_state.data['road'] )
     streamlit_js_eval(js_expressions="parent.window.location.reload()")
 
 
@@ -206,6 +207,8 @@ def trip_instagram():
     for i in keys_name:
         total_number += len(st.session_state.data[i])
 
+    # print(keys_name)
+    # print(total_number)
     for i in keys_name:
         if total_number == 1:
             total_answer += [st.session_state.ans[i].split(f'조회된 개수보다 추천 수가 많아서 조회된 개수 {total_number}개 내에서 추천하는 것으로 변경되었습니다. \n\n ')[-1]]
@@ -214,20 +217,30 @@ def trip_instagram():
 
     for i in keys_name:
         for j in st.session_state.data[i]:
-            total_name.append(j.page_content)
+            sep_page_content  = j.page_content.split(':')[0].strip()
+            total_name.append(sep_page_content)
             total_imgs.append(j.metadata['img'])
-            total_hashtag.append(f'#{i} #{j.page_content} #HashTrip')
+            total_hashtag.append(f'#{i} #{sep_page_content} #HashTrip')
 
     # print(total_name)
 
+# 변경전
+    # if len(total_answer) != 1:
+    #     print('total_name', total_name)
+    #     print('total_answer', total_answer)
+    #     for i in total_name:
+    #         for j in total_answer:
+    #             if i in j:
+    #                 total_context.append(instagram_gpt(j))
+    #                 st.session_state.gpt[f'{i}'] = [total_context[-1]]
+    #                 break
+# 변경후
     if len(total_answer) != 1:
+        # print('total_name', total_name)
+        # print('total_answer', total_answer)
         for i in total_name:
-            for j in total_answer:
-                if i in j:
-                    
-                    total_context.append(instagram_gpt(j))
-                    st.session_state.gpt[f'{i}'] = [total_context[-1]]
-                    break
+            total_context.append(instagram_gpt(i))
+            st.session_state.gpt[f'{i}'] = [total_context[-1]]
     else:
         total_context.append(instagram_gpt(total_answer[0]))
         st.session_state.gpt[i] = [total_context[-1]]
@@ -296,6 +309,10 @@ def trip_instagram():
         with elements("demo"):
             event.Hotkey("ctrl+s", sync(), bindInputs=True, overrideDefault=True)
             with w.dashboard(rowHeight=57):
+                
+                print("new_dic",len(new_dic))
+                print("total_context",len(total_context))
+                
                 for i in range(len(new_dic)-1):
                     text = total_context[i]
                     text = text.replace('"',' ').strip()
